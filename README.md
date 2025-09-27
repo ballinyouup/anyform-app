@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📄 Multi-Part Input Distribution
 
-## Getting Started
+Transform a single input into **multiple outputs** — PDFs, audio (MP3), images, and more.  
+This project demonstrates a pipeline that accepts an uploaded PDF, extracts text, and generates a summarized output using Google Gemini. The architecture is modular so you can add audio, image generation, or streaming later.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🔖 One-liner
+**Split one input into many outputs — PDFs, MP3s, images, and more.**
+
+---
+
+## 🚀 Features
+- Upload a PDF and extract raw text.
+- Summarize the content using Gemini (`gemini-2.5-flash`).
+- Return the summary as JSON.
+- Modular design to support additional outputs (audio, images, video).
+
+---
+
+## 🧠 Inspiration
+Different people prefer different mediums — reading, listening, or viewing. This project was inspired by the idea of making the same content accessible across multiple formats simultaneously.
+
+---
+
+## 📦 Tech Stack
+- **Framework**: Next.js (API routes / serverless functions)  
+- **Parsing**: [pdf-parse](https://www.npmjs.com/package/pdf-parse)  
+- **AI**: [Google GenAI](https://ai.google.dev) (Gemini models)  
+- **Runtime**: Node.js  
+
+---
+
+## 🛠️ How it works
+1. Upload a PDF via a form request.  
+2. Convert the uploaded file into a buffer.  
+3. Extract text using `pdf-parse`.  
+4. Send the extracted text to Gemini for summarization.  
+5. Return a clean JSON response.  
+
+---
+
+## 📂 Example File Structure
+
+```text
+/
+├─ app/
+│  └─ api/
+│     └─ pdf/route.js   # API handler
+├─ public/
+├─ package.json
+├─ README.md
+└─ .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
+## ⚙️ Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repo:
+```console
+git clone https://github.com/<your-username>/<repo-name>.git
+cd <repo-name>
+```
+2. Install dependencies:
+```console
+npm install
+```
+3. Add your environment variable in `.env.local`:
+```text
+GEMINI_API_KEY=your_api_key_here
+```
+4.Run the development server
+```console
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🎉 Accomplishments
+- Built a system that transforms one input into multiple outputs.  
+- Successfully demonstrated PDF → Text → AI Summary.  
+- Designed modular architecture for extending into audio, images, and video.  
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## ⚠️ Challenges
+- Large PDFs and memory optimization.  
+- Summarization accuracy and prompt tuning.  
+- Handling quirks of different formats (PDF layout vs. audio pronunciation).  
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📚 What we learned
+- Working with multiple content formats in one pipeline.  
+- How to integrate AI models into serverless functions.  
+- The importance of accessibility-first design.  
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🔭 Roadmap
+- Add **text-to-speech (MP3)** output.  
+- Add **image/diagram generation** from extracted text.  
+- Support **video narration** and **real-time streaming**.  
+- Integrate with **cloud storage** (Google Drive, S3).  
+- Provide a **UI for uploads & downloads**.
+---
+## 🎯 Goals
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Make one input accessible across **multiple formats** (PDF, audio, images).
+- Improve **accessibility** for people with different needs (visual, auditory, cognitive).
+- Enable **low-bandwidth** and **offline-friendly** distribution (smaller, targeted outputs).
+- Provide **education-ready** content (summaries, study notes, slides).
+- Offer **plug-and-play modules** so others can extend the pipeline (TTS, diagrams, video).
+- Keep it **open-source**, documented, and easy to adopt.
+---
+## 🌍 How this fits: AI for Good — Helping Humanity
+
+- **Accessibility & Inclusion:** Converts the same content into formats that serve screen-reader users, language learners, and people on the go.
+- **Equity of Access:** Lowers friction for communities with constrained devices or connectivity by generating lightweight alternatives (text, compressed audio).
+- **Education & Literacy:** Produces clear summaries and multimodal learning aids that support students and lifelong learners.
+- **Crisis & Public Info:** Supports rapid reformatting of guidance (health, safety, disaster updates) into readable, audible, and visual versions.
+- **Sustainable Use of AI:** Promotes **right-sized** outputs (only what’s needed, when it’s needed) to reduce unnecessary compute and storage.

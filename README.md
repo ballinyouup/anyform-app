@@ -11,10 +11,12 @@ This project demonstrates a pipeline that accepts an uploaded PDF, extracts text
 ---
 
 ## 🚀 Features
-- Upload a PDF and extract raw text.
-- Summarize the content using Gemini (`gemini-2.5-flash`).
-- Return the summary as JSON.
-- Modular design to support additional outputs (audio, images, video).
+-**Three input modes**: upload file, paste text, or (WIP) lightweight web searc
+-**PDF text extraction** on the client using pdfjs-dist with a local worker (public/pdf.worker.min.js).
+-**Summarization** powered by **Google Gemini** (@google/genai).
+-**Optional** **Text‑to‑Speech** via ElevenLabs (returns an MP3 stream).
+-**Modern UI**: Next.js App Router, Tailwind v4, shadcn/ui, Radix primitives, lucide icons.
+-**TypeScript-first** with a small, modular lib (/src/lib) and reusable components (/src/components).
 
 ---
 
@@ -24,10 +26,10 @@ Different people prefer different mediums — reading, listening, or viewing. Th
 ---
 
 ## 📦 Tech Stack
-- **Framework**: Next.js (API routes / serverless functions)  
-- **Parsing**: [pdf-parse](https://www.npmjs.com/package/pdf-parse)  
-- **AI**: [Google GenAI](https://ai.google.dev) (Gemini models)  
-- **Runtime**: Node.js  
+- **Framework**: Next.js (App Router)
+- **Parsing**: TypeScript
+- **AI**: @google/genai (Gemini 2.5 Flash) – text/grounded responses; Imagen (prompt generation) 
+- **Audio**: ElevenLabs TTS
 
 ---
 
@@ -44,34 +46,50 @@ Different people prefer different mediums — reading, listening, or viewing. Th
 
 ```text
 /
-├─ app/
-│  └─ api/
-│     └─ pdf/route.js   # API handler
-├─ public/
-├─ package.json
-├─ README.md
-└─ .env.local
+src/
+  app/
+  layout.tsx
+  page.tsx # main UI (tabs: file / text / websearch)
+  api/
+    process-audio/ # POST – calls Gemini on uploaded audio (transcribe + image prompts)
+    text-to-speech/ # POST – streams MP3 from ElevenLabs
+  components/ # DropZone, OutputDisplay, AudioPlayer, FileViewer, shadcn/ui
+  hooks/
+  lib/ # geminiService.ts, utils.ts (PDF), types.ts, audioUtils.ts
+public/
+  pdf.worker.min.js # PDF.js worker (required for client extraction)
 ```
 
 ---
-## ⚙️ Installation
 
-1. Clone the repo:
+## ⚙️ Environment Variables
+
+Create .env.local in the project root:
 ```console
-git clone https://github.com/<your-username>/<repo-name>.git
-cd <repo-name>
+# Required for Gemini (summarization, prompts)
+GEMINI_API_KEY=your_google_generative_ai_key
+# Optional – only if you want MP3 audio via ElevenLabs
+ELEVENLABS_API_KEY=your_eleven_labs_key
 ```
-2. Install dependencies:
-```console
+If you don’t set ELEVENLABS_API_KEY, the app still works for text summary; the /api/text-to-speech route will return a helpful error.
+## ⚙️ Quickstart
+
+# 1) Install deps
 npm install
-```
-3. Add your environment variable in `.env.local`:
-```text
-GEMINI_API_KEY=your_api_key_here
-```
-4.Run the development server
-```console
+
+
+# If you see "Cannot find module 'next' or 'react'",
+# add them explicitly (some templates omit these):
+npm i next@latest react@latest react-dom@latest
+
+
+# 2) Dev server
 npm run dev
+# -> http://localhost:3000
+
+
+# 3) Build & start (production)
+npm run build && npm start
 ```
 
 ## 🎉 Accomplishments
@@ -118,3 +136,4 @@ npm run dev
 - **Education & Literacy:** Produces clear summaries and multimodal learning aids that support students and lifelong learners.
 - **Crisis & Public Info:** Supports rapid reformatting of guidance (health, safety, disaster updates) into readable, audible, and visual versions.
 - **Sustainable Use of AI:** Promotes **right-sized** outputs (only what’s needed, when it’s needed) to reduce unnecessary compute and storage.
+

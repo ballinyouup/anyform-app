@@ -23,6 +23,7 @@ const config = {
 /**
  * Removes inline citations from response text to provide clean reading experience
  */
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 export async function getCleanText(response: any): Promise<string> {
     let text = response.text;
     
@@ -45,6 +46,7 @@ export async function getCleanText(response: any): Promise<string> {
 /**
  * Extracts web search metadata from a Gemini response
  */
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 export const extractWebSearchMetadata = async (response: any) => {
     const groundingMetadata = response.candidates[0]?.groundingMetadata;
     

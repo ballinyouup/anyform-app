@@ -72,22 +72,18 @@ const App: React.FC = () => {
                     });
                     const images = await geminiService.generateImages(imagePrompts);
                     setOutput({ summary, images, originalFile });
-                } else {
-                    throw new Error('Unsupported file type. Please use an image, PDF, or audio file.');
                 }
             } else if (inputType === 'text' && inputText.trim()) {
                 const { summary, imagePrompts, webSearchResults } = await geminiService.generateContentFromText(inputText);
                 const images = await geminiService.generateImages(imagePrompts);
                 setOutput({ summary, images, webSearchResults });
             } else if (inputType === 'websearch' && inputText.trim()) {
-                const { response, cleanResponse, webSearchQueries, sources } = await geminiService.performWebSearch(inputText);
+                const { cleanResponse, sources } = await geminiService.performWebSearch(inputText);
                 const webSearchResults = sources.map(source => `${source.title}: ${source.uri}`);
                 setOutput({ 
                     summary: cleanResponse, 
                     webSearchResults 
                 });
-            } else {
-                throw new Error('Please provide a file or paste some text to generate content.');
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.');
@@ -150,7 +146,7 @@ const App: React.FC = () => {
             {/* CSS Animation Styles */}
             <style jsx>{`
         @keyframes subtleShift {
-          0%, 100% { background-position: 0% 50%; }
+          0%, 100% { background-position: 0 50%; }
           50% { background-position: 100% 50%; }
         }
         

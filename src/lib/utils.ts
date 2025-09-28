@@ -6,6 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Initialize PDF.js only on client side to avoid SSR issues
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 let pdfjsLib: any = null;
 
 const initializePdfJs = async () => {
@@ -47,6 +48,7 @@ export const extractTextFromPdf = async (file: File): Promise<string> => {
     for (let i = 1; i <= numPages; i++) {
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
         fullText += textContent.items.map((item: any) => item.str).join(" ") + "\n";
     }
 

@@ -157,51 +157,42 @@ Text: "${text}"
 
 /**
  * Generates content from an audio file by transcribing, summarizing, and creating image prompts.
+ * This function now uses the API route to handle large audio files.
  */
 export const generateContentFromAudio = async (audio: { mimeType: string; data: string }): Promise<{ summary: string; imagePrompts: string[] }> => {
-    const audioPart = {
-        inlineData: {
-            mimeType: audio.mimeType,
-            data: audio.data,
-        },
-    };
+    try {
+        const response = await fetch('/api/process-audio', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                mimeType: audio.mimeType,
+                data: audio.data,
+            }),
+        });
 
-    const textPart = {
-        text: `
-    Please perform the following tasks with the provided audio file:
-    1. Transcribe the audio content into text.
-    2. Based on the transcription, generate 3 distinct and creative prompts that could be used to create visually compelling images representing the key themes.
-    Return the result in a JSON format with 'summary' and 'imagePrompts' keys. Do not use markdown formatting.
-`
-    };
-
-    const response = await ai.models.generateContent({
-        model: visionModel,
-        contents: { parts: [audioPart, textPart] },
-        config: {
-            responseMimeType: 'application/json',
-            responseSchema: {
-                type: Type.OBJECT,
-                properties: {
-                    summary: {
-                        type: Type.STRING,
-                        description: 'A transcription of the audio file.'
-                    },
-                    imagePrompts: {
-                        type: Type.ARRAY,
-                        items: {
-                            type: Type.STRING
-                        },
-                        description: 'An array of three distinct image generation prompts based on the transcription.'
-                    }
-                }
-            }
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-    });
-    if (!response.text) {
-        return { summary: "no response", imagePrompts: [] };
+
+        const result = await response.json();
+        
+        if (result.error) {
+            throw new Error(result.error);
+        }
+
+        return {
+            summary: result.summary || "No transcription available",
+            imagePrompts: result.imagePrompts || []
+        };
+    } catch (error) {
+        console.error('Error processing audio:', error);
+        return { 
+            summary: "Error processing audio file", 
+            imagePrompts: [] 
+        };
     }
-    return JSON.parse(response.text);
 };
 
 /**

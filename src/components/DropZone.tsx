@@ -72,13 +72,14 @@ export const DropZone: React.FC<DropZoneProps> = ({
 
             {inputType === 'file' ? (
                 <div
-                    className={`relative border-2 border-dashed rounded-lg p-10 text-center transition-colors duration-300 ${isDragging ? 'border-brand-primary bg-base-100/50' : 'border-base-300'}`}
+                    className={`relative border-2 border-dashed rounded-lg p-10 text-center transition-colors duration-300 bg-white ${isDragging ? 'border-brand-primary bg-gray-50' : 'border-base-300'}`}
                     onDragEnter={handleDragEnter}
                     onDragLeave={handleDragLeave}
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
                 >
+
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,application/pdf,audio/*" />
                     <div className="flex flex-col items-center justify-center text-text-secondary cursor-pointer">
                         {inputFile ? (
@@ -111,7 +112,7 @@ export const DropZone: React.FC<DropZoneProps> = ({
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Paste your text content here..."
-              className="w-full h-48 p-4 bg-base-100 border border-base-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition"
+              className="w-full h-48 p-4 bg-white border border-base-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition"
           />
                 </div>
             )}
@@ -140,8 +141,8 @@ const TabButton: React.FC<TabButtonProps> = ({ id, label, activeTab, setActiveTa
         onClick={() => setActiveTab(id)}
         className={`py-2 px-6 font-medium text-sm transition-colors duration-200 ${
             activeTab === id
-                ? 'border-b-2 border-brand-primary text-text-primary'
-                : 'text-text-secondary hover:text-text-primary'
+                ? 'border-b-2 border-blue-500 text-gray-900 bg-white'
+                : 'text-gray-600 hover:text-gray-900 bg-white hover:bg-gray-50'
         }`}
     >
         {label}

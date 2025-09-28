@@ -2,6 +2,7 @@
 import React from 'react';
 import type { AppOutput } from '@/lib/types';
 import { AudioPlayer } from './AudioPlayer';
+import { FileViewer } from './FileViewer';
 
 interface OutputDisplayProps {
     output: AppOutput;
@@ -10,6 +11,14 @@ interface OutputDisplayProps {
 export const OutputDisplay: React.FC<OutputDisplayProps> = ({ output }) => {
     return (
         <div className="space-y-8">
+            {/* Original File Display - Show at the top */}
+            {output.originalFile && (
+                <section>
+                    <h2 className="text-2xl font-bold text-text-primary mb-4">Original File</h2>
+                    <FileViewer file={output.originalFile} />
+                </section>
+            )}
+
             {output.summary && (
                 <section>
                     <h2 className="text-2xl font-bold text-text-primary mb-4">Summary & Audio</h2>

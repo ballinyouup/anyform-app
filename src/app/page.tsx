@@ -43,18 +43,27 @@ const App: React.FC = () => {
 
         try {
             if (inputType === 'file' && inputFile) {
+                // Create a URL for the original file to display
+                const fileUrl = URL.createObjectURL(inputFile);
+                const originalFile = {
+                    name: inputFile.name,
+                    url: fileUrl,
+                    type: inputFile.type,
+                    size: inputFile.size
+                };
+
                 if (inputFile.type.startsWith('image/')) {
                     const base64Image = await fileToBase64(inputFile);
                     const summary = await geminiService.generateSummaryFromImage({
                         mimeType: inputFile.type,
                         data: base64Image.split(',')[1],
                     });
-                    setOutput({ summary });
+                    setOutput({ summary, originalFile });
                 } else if (inputFile.type === 'application/pdf') {
                     const text = await extractTextFromPdf(inputFile);
                     const { summary, imagePrompts, webSearchResults } = await geminiService.generateContentFromText(text);
                     const images = await geminiService.generateImages(imagePrompts);
-                    setOutput({ summary, images, webSearchResults });
+                    setOutput({ summary, images, webSearchResults, originalFile });
                 } else if (inputFile.type.startsWith('audio/')) {
                     const base64Audio = await fileToBase64(inputFile);
                     const { summary, imagePrompts } = await generateContentFromAudio({
@@ -62,7 +71,7 @@ const App: React.FC = () => {
                         data: base64Audio.split(',')[1],
                     });
                     const images = await geminiService.generateImages(imagePrompts);
-                    setOutput({ summary, images });
+                    setOutput({ summary, images, originalFile });
                 } else {
                     throw new Error('Unsupported file type. Please use an image, PDF, or audio file.');
                 }

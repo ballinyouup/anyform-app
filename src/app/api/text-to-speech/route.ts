@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-
+import "dotenv"
 export async function POST(request: NextRequest) {
   try {
     const { text, voiceId = '21m00Tcm4TlvDq8ikWAM' } = await request.json()

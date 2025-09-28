@@ -10,7 +10,7 @@ if (!apiKey){
 const ai = new GoogleGenAI({apiKey: apiKey});
 
 const textGenModel = 'gemini-2.5-flash';
-const imageGenModel = 'imagen-4.0-generate-001';
+const imageGenModel = 'imagen-3.0-generate-001';
 const visionModel = 'gemini-2.5-flash';
 const groundingTool = {
     googleSearch: {},
@@ -110,7 +110,7 @@ export const performWebSearch = async (query: string): Promise<{
 export const generateContentFromText = async (text: string): Promise<{ summary: string; imagePrompts: string[], webSearchResults: string[] }> => {
     const prompt = `
 Summarize the following text in a concise, easy-to-understand paragraph.
-After the summary, generate 3 distinct and creative prompts that could be used to create visually compelling images that represent the key themes of the content.
+After the summary, generate 1 distinct and creative prompt that could be used to create a visually compelling image that represents the key themes of the content.
 Do not use markdown formatting.
 
 Text: "${text}"
@@ -133,7 +133,7 @@ Text: "${text}"
                         items: {
                             type: Type.STRING
                         },
-                        description: 'An array of three distinct image generation prompts.'
+                        description: 'An array of one distinct image generation prompt.'
                     }
                 }
             }
@@ -190,24 +190,23 @@ export const generateSummaryFromImage = async (image: { mimeType: string; data: 
 export const generateImages = async (prompts: string[]): Promise<string[]> => {
     if (prompts.length === 0) return [];
 
-    const imagePromises = prompts.map(prompt =>
-        ai.models.generateImages({
-            model: imageGenModel,
-            prompt: prompt,
-            config: {
-                numberOfImages: 1,
-                outputMimeType: 'image/jpeg',
-                aspectRatio: '16:9',
-            },
-        })
-    );
-
-    const results = await Promise.all(imagePromises);
-    return results.map(result => {
-        if (!result.generatedImages?.[0]?.image?.imageBytes) {
-            return "no total response";
-        }
-        const base64ImageBytes = result.generatedImages[0].image.imageBytes;
-        return `data:image/jpeg;base64,${base64ImageBytes}`;
+    // Only generate image for the first prompt to avoid rate limiting
+    const firstPrompt = prompts[0];
+    
+    const result = await ai.models.generateImages({
+        model: imageGenModel,
+        prompt: firstPrompt,
+        config: {
+            numberOfImages: 1,
+            outputMimeType: 'image/jpeg',
+            aspectRatio: '16:9',
+        },
     });
+
+    if (!result.generatedImages?.[0]?.image?.imageBytes) {
+        return ["no total response"];
+    }
+    
+    const base64ImageBytes = result.generatedImages[0].image.imageBytes;
+    return [`data:image/jpeg;base64,${base64ImageBytes}`];
 };

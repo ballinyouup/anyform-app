@@ -7,6 +7,7 @@ import * as geminiService from '@/lib/geminiService';
 import { generateContentFromAudio } from '@/lib/audioUtils';
 import { extractTextFromPdf, fileToBase64 } from '@/lib/utils';
 import { Spinner } from '@/components/Spinner';
+import AnyForm from "@/components/AnyForm";
 
 const App: React.FC = () => {
     const [inputType, setInputType] = useState<InputType>('file');
@@ -95,7 +96,8 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black">
+        <div
+            className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black">
             {/* Animated overlay */}
             <div
                 className="fixed inset-0 opacity-50 pointer-events-none"
@@ -162,9 +164,7 @@ const App: React.FC = () => {
         <div className="min-h-screen bg-base-100 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 relative z-10">
             <div className="w-full max-w-4xl mx-auto">
                 <header className="text-center mb-8">
-                    <h1 className="text-4xl sm:text-5xl font-bold text-background tracking-tight">
-                        Any<span className="text-purple-200">Form</span>
-                    </h1>
+                    <AnyForm />
                     <p className="mt-3 text-lg text-background max-w-2xl mx-auto">
                         Upload a file or paste text to transform it into new, accessible formats.
                     </p>

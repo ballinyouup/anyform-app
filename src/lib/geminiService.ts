@@ -71,8 +71,7 @@ export const generateContentFromAudio = async (audio: { mimeType: string; data: 
         text: `
     Please perform the following tasks with the provided audio file:
     1. Transcribe the audio content into text.
-    2. Summarize the transcribed text into a concise, easy-to-understand paragraph.
-    3. Based on the summary, generate 3 distinct and creative prompts that could be used to create visually compelling images representing the key themes.
+    2. Based on the transcription, generate 3 distinct and creative prompts that could be used to create visually compelling images representing the key themes.
     Return the result in a JSON format with 'summary' and 'imagePrompts' keys. Do not use markdown formatting.
 `
     };
@@ -87,14 +86,14 @@ export const generateContentFromAudio = async (audio: { mimeType: string; data: 
                 properties: {
                     summary: {
                         type: Type.STRING,
-                        description: 'A concise summary of the transcribed audio.'
+                        description: 'A transcription of the audio file.'
                     },
                     imagePrompts: {
                         type: Type.ARRAY,
                         items: {
                             type: Type.STRING
                         },
-                        description: 'An array of three distinct image generation prompts based on the summary.'
+                        description: 'An array of three distinct image generation prompts based on the transcription.'
                     }
                 }
             }
@@ -127,7 +126,7 @@ export const generateSummaryFromImage = async (image: { mimeType: string; data: 
         contents: { parts: [imagePart, textPart] },
     });
     if (!response.text) {
-        return "no resposne";
+        return "no response";
     }
 
     return response.text;

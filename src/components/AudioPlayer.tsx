@@ -98,15 +98,30 @@ export function MediaControlBar({ className, text }: MediaControlBarProps) {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to fetch audio from text-to-speech API.')
+        const errorText = await response.text()
+        console.error('Text-to-speech API error:', {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText
+        })
+        throw new Error(`Failed to fetch audio from text-to-speech API: ${response.status} - ${errorText}`)
       }
 
       const blob = await response.blob()
+      console.log('Audio blob details:', {
+        size: blob.size,
+        type: blob.type
+      })
+      
       const url = URL.createObjectURL(blob)
       const audio = new Audio(url)
       audioRef.current = audio
 
       audio.onloadedmetadata = () => {
+        console.log('Audio loaded successfully:', {
+          duration: audio.duration,
+          readyState: audio.readyState
+        })
         setDuration(Math.floor(audio.duration))
       }
 
@@ -115,9 +130,24 @@ export function MediaControlBar({ className, text }: MediaControlBarProps) {
         setCurrentTime(0)
       }
 
+      audio.onerror = (e) => {
+        console.error('Audio playback error:', e)
+        console.error('Audio error details:', {
+          error: audio.error,
+          networkState: audio.networkState,
+          readyState: audio.readyState,
+          src: audio.src
+        })
+      }
+
       audio.volume = volume[0] / 100
-      audio.play()
-      setIsPlaying(true)
+      
+      try {
+        await audio.play()
+        setIsPlaying(true)
+      } catch (playError) {
+        console.error('Audio play error:', playError)
+      }
     } catch (error) {
       console.error("Error fetching or playing audio:", error)
     } finally {

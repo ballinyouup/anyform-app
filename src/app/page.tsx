@@ -217,12 +217,13 @@ const App: React.FC = () => {
                         </div>
                     )}
                 </main>
-                <footer className="text-center mt-8 text-sm text-base-300 text-white">
-                    <p>Powered by NEXT.js, Tailwind CSS, Gemini API, and EllevenLabs</p>
-                    <p>Made with ❤️ by Jose Serrano, Brendan Tang, Christian Evans, and Bryan Huici</p>
-                </footer>
             </div>
         </div>
+        <footer className="text-center mt-8 text-xs text-base-300 text-white w-screen bg-slate-600 py-4">
+                <p>Powered by NEXT.js, Tailwind CSS, Gemini API, and ElevenLabs</p>
+                <p>Jose Serrano, Brendan Tang, Christian Evans, and Bryan Huici</p>
+                <p>Made with ❤️</p>
+            </footer>
         </div>
     );
 };

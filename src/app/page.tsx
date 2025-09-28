@@ -4,6 +4,7 @@ import type { AppOutput, InputType } from '@/lib/types';
 import { DropZone } from '@/components/DropZone';
 import { OutputDisplay } from '@/components/OutputDisplay';
 import * as geminiService from '@/lib/geminiService';
+import { generateContentFromAudio } from '@/lib/audioUtils';
 import { extractTextFromPdf, fileToBase64 } from '@/lib/utils';
 import { Spinner } from '@/components/Spinner';
 
@@ -55,7 +56,7 @@ const App: React.FC = () => {
                     setOutput({ summary, images, webSearchResults });
                 } else if (inputFile.type.startsWith('audio/')) {
                     const base64Audio = await fileToBase64(inputFile);
-                    const { summary, imagePrompts } = await geminiService.generateContentFromAudio({
+                    const { summary, imagePrompts } = await generateContentFromAudio({
                         mimeType: inputFile.type,
                         data: base64Audio.split(',')[1],
                     });

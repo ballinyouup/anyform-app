@@ -20,7 +20,7 @@ interface FocusRect {
 }
 
 const TrueFocus: React.FC<TrueFocusProps> = ({
-                                                 sentence = 'Any Form',
+                                                 sentence = 'TL DR',
                                                  manualMode = false,
                                                  blurAmount = 2,
                                                  borderColor = 'pink',

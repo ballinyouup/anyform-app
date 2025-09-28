@@ -190,24 +190,25 @@ export const generateSummaryFromImage = async (image: { mimeType: string; data: 
 export const generateImages = async (prompts: string[]): Promise<string[]> => {
     if (prompts.length === 0) return [];
 
-    const imagePromises = prompts.map(prompt =>
-        ai.models.generateImages({
-            model: imageGenModel,
-            prompt: prompt,
-            config: {
-                numberOfImages: 1,
-                outputMimeType: 'image/jpeg',
-                aspectRatio: '16:9',
-            },
-        })
-    );
+    // Use the first prompt and generate multiple images in a single API call
+    const firstPrompt = prompts[0];
+    
+    const result = await ai.models.generateImages({
+        model: imageGenModel,
+        prompt: firstPrompt,
+        config: {
+            numberOfImages: Math.min(prompts.length, 3), // Generate up to 3 images in one call
+        },
+    });
 
-    const results = await Promise.all(imagePromises);
-    return results.map(result => {
-        if (!result.generatedImages?.[0]?.image?.imageBytes) {
-            return "no total response";
+    if (!result.generatedImages || result.generatedImages.length === 0) {
+        return ["no total response"];
+    }
+    
+    return result.generatedImages.map(img => {
+        if (!img.image?.imageBytes) {
+            return "no response";
         }
-        const base64ImageBytes = result.generatedImages[0].image.imageBytes;
-        return `data:image/jpeg;base64,${base64ImageBytes}`;
+        return `data:image/png;base64,${img.image.imageBytes}`;
     });
 };

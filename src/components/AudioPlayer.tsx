@@ -1,5 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+// components/AudioPlayer.tsx
 
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+
+// --- SVG Icons (No changes needed) ---
 const PlayIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
         <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.647c1.295.742 1.295 2.545 0 3.286L7.279 20.99c-1.25.717-2.779-.217-2.779-1.643V5.653z" clipRule="evenodd" />
@@ -18,80 +21,126 @@ const StopIcon = () => (
     </svg>
 );
 
+
+// --- Component Interface ---
 interface AudioPlayerProps {
     text: string;
 }
 
+
+// --- Refactored AudioPlayer Component for ElevenLabs ---
 export const AudioPlayer: React.FC<AudioPlayerProps> = ({ text }) => {
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isPaused, setIsPaused] = useState(false);
-    const synth = window.speechSynthesis;
+    const [isFetching, setIsFetching] = useState(false);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    const handlePlay = useCallback(() => {
-        if (!synth) return;
-        if (synth.speaking && isPaused) {
-            synth.resume();
-            setIsPlaying(true);
-            setIsPaused(false);
-        } else {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.onend = () => {
-                setIsPlaying(false);
-                setIsPaused(false);
-            };
-            synth.cancel(); // Clear any previous utterances
-            synth.speak(utterance);
-            setIsPlaying(true);
-            setIsPaused(false);
-        }
-    }, [text, synth, isPaused]);
+    const apiKey = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY;
+    // A good default voice, find more on the ElevenLabs website.
+    const voiceId = '21m00Tcm4TlvDq8ikWAM'; // Rachel
 
-    const handlePause = useCallback(() => {
-        if (synth && synth.speaking) {
-            synth.pause();
-            setIsPlaying(false);
-            setIsPaused(true);
-        }
-    }, [synth]);
-
-    const handleStop = useCallback(() => {
-        if (synth) {
-            synth.cancel();
-            setIsPlaying(false);
-            setIsPaused(false);
-        }
-    }, [synth]);
-
+    // This useEffect hook handles cleanup when the component unmounts or the text changes.
     useEffect(() => {
-        // Cleanup function to cancel speech when component unmounts or text changes
+        // This function is returned by the effect and acts as the cleanup function.
         return () => {
-            if (synth) {
-                synth.cancel();
+            if (audioRef.current) {
+                // Pause the audio and revoke the Blob URL to release memory.
+                audioRef.current.pause();
+                URL.revokeObjectURL(audioRef.current.src);
+                audioRef.current = null;
             }
         };
-    }, [text, synth]);
+    }, [text]); // Re-run the effect and its cleanup if the text changes.
 
-    if (!synth) {
-        return <p className="text-sm text-amber-400">Text-to-speech is not supported in your browser.</p>;
-    }
+    const handlePlayPause = useCallback(async () => {
+        if (!apiKey) {
+            console.error("ElevenLabs API key is not configured.");
+            return;
+        }
+
+        // If audio is already playing, pause it.
+        if (isPlaying) {
+            audioRef.current?.pause();
+            setIsPlaying(false);
+            return;
+        }
+
+        // If audio is loaded but paused, resume playing.
+        if (audioRef.current) {
+            audioRef.current.play();
+            setIsPlaying(true);
+            return;
+        }
+
+        // If no audio is loaded, fetch it from the ElevenLabs API.
+        setIsFetching(true);
+        try {
+            const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'audio/mpeg',
+                    'Content-Type': 'application/json',
+                    'xi-api-key': apiKey,
+                },
+                body: JSON.stringify({
+                    text,
+                    model_id: 'eleven_multilingual_v2',
+                    voice_settings: { stability: 0.5, similarity_boost: 0.75 },
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch audio from ElevenLabs.');
+            }
+
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const audio = new Audio(url);
+            audioRef.current = audio;
+
+            audio.onended = () => setIsPlaying(false);
+
+            audio.play();
+            setIsPlaying(true);
+        } catch (error) {
+            console.error("Error fetching or playing audio:", error);
+        } finally {
+            setIsFetching(false);
+        }
+    }, [text, isPlaying, apiKey]);
+
+    const handleStop = useCallback(() => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+            setIsPlaying(false);
+        }
+    }, []);
+
+    const getStatusText = () => {
+        if (isFetching) return "Generating...";
+        if (isPlaying) return "Playing...";
+        if (audioRef.current) return "Paused";
+        return "Listen to summary";
+    };
 
     return (
         <div className="flex items-center space-x-2 pt-4 border-t border-base-300">
-            {!isPlaying ? (
-                <button onClick={handlePlay} className="p-2 rounded-full transition-colors cursor-pointer">
-                    <PlayIcon />
-                </button>
-            ) : (
-                <button onClick={handlePause} className="p-2 rounded-full transition-colors cursor-pointer">
-                    <PauseIcon />
+            <button
+                onClick={handlePlayPause}
+                disabled={isFetching}
+                className="p-2 rounded-full transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                {isPlaying ? <PauseIcon /> : <PlayIcon />}
+            </button>
+            {audioRef.current && (
+                <button
+                    onClick={handleStop}
+                    className="p-2 rounded-full transition-colors cursor-pointer"
+                >
+                    <StopIcon />
                 </button>
             )}
-            {/*{(isPlaying || isPaused) && (*/}
-            {/*    <button onClick={handleStop} className="p-2 rounded-full bg-base-300 text-text-primary hover:bg-gray-500 transition-colors">*/}
-            {/*        <StopIcon/>*/}
-            {/*    </button>*/}
-            {/*)}*/}
-            <span className="text-sm text-text-secondary">{isPlaying ? "Playing..." : isPaused ? "Paused" : "Listen to summary"}</span>
+            <span className="text-sm text-text-secondary">{getStatusText()}</span>
         </div>
     );
 };

@@ -61,13 +61,14 @@ export const DropZone: React.FC<DropZoneProps> = ({
         }
     };
 
-    const canGenerate = (inputType === 'file' && inputFile) || (inputType === 'text' && inputText.trim().length > 0);
+    const canGenerate = (inputType === 'file' && inputFile) || (inputType === 'text' && inputText.trim().length > 0) || (inputType === 'websearch' && inputText.trim().length > 0);
 
     return (
         <div>
             <div className="flex border-b border-base-300 mb-6">
                 <TabButton id="file" label="Upload File" activeTab={inputType} setActiveTab={setInputType} />
                 <TabButton id="text" label="Paste Text" activeTab={inputType} setActiveTab={setInputType} />
+                <TabButton id="websearch" label="Web Search" activeTab={inputType} setActiveTab={setInputType} />
             </div>
 
             {inputType === 'file' ? (
@@ -106,7 +107,7 @@ export const DropZone: React.FC<DropZoneProps> = ({
                         )}
                     </div>
                 </div>
-            ) : (
+            ) : inputType === 'text' ? (
                 <div>
           <textarea
               value={inputText}
@@ -114,6 +115,16 @@ export const DropZone: React.FC<DropZoneProps> = ({
               placeholder="Paste your text content here..."
               className="w-full h-48 p-4 bg-white border border-base-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition"
           />
+                </div>
+            ) : (
+                <div>
+          <textarea
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              placeholder="Enter your search query here... (e.g., 'What are the latest developments in AI?')"
+              className="w-full h-32 p-4 bg-white border border-base-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition"
+          />
+          <p className="text-xs mt-2 text-base-300">This will search the web and provide current information with sources.</p>
                 </div>
             )}
             <div className="mt-6 text-center">

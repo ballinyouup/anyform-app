@@ -158,7 +158,7 @@ const App: React.FC = () => {
             <div className="w-full max-w-4xl mx-auto">
                 <header className="text-center mb-8">
                     <h1 className="text-4xl sm:text-5xl font-bold text-background tracking-tight">
-                        Media <span className="text-background">Multiverse</span>
+                        Any<span className="text-purple-200">Form</span>
                     </h1>
                     <p className="mt-3 text-lg text-background max-w-2xl mx-auto">
                         Upload a file or paste text to transform it into new, accessible formats.
@@ -207,8 +207,8 @@ const App: React.FC = () => {
                         </div>
                     )}
                 </main>
-                <footer className="text-center mt-8 text-sm text-base-300">
-                    <p>Powered by React, Tailwind CSS, and Gemini API</p>
+                <footer className="text-center mt-8 text-sm text-base-300 text-white">
+                    <p>Powered by NEXT.js, Tailwind CSS, Gemini API, and EllevenLabs</p>
                 </footer>
             </div>
         </div>

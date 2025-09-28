@@ -120,7 +120,7 @@ export const DropZone: React.FC<DropZoneProps> = ({
                 <button
                     onClick={onGenerate}
                     disabled={!canGenerate || isLoading}
-                    className="bg-primary text-white cursor-pointer font-bold py-3 px-8 rounded-lg transition-all duration-300 ease-in-out hover:bg-brand-secondary disabled:bg-base-300 disabled:cursor-not-allowed disabled:scale-100 transform hover:scale-105"
+                    className="bg-primary text-white cursor-pointer font-bold py-3 px-8 rounded-lg transition-all duration-300 ease-in-out hover:bg-brand-secondary disabled:bg-base-300 disabled:hidden disabled:scale-100 transform hover:scale-105"
                 >
                     {isLoading ? 'Generating...' : 'Generate'}
                 </button>
@@ -141,8 +141,8 @@ const TabButton: React.FC<TabButtonProps> = ({ id, label, activeTab, setActiveTa
         onClick={() => setActiveTab(id)}
         className={`py-2 px-6 font-medium text-sm transition-colors duration-200 ${
             activeTab === id
-                ? 'border-b-2 border-blue-500 text-gray-900 bg-white'
-                : 'text-gray-600 hover:text-gray-900 bg-white hover:bg-gray-50'
+                ? 'border-b-2 border-purple-500 text-gray-900 bg-white'
+                : 'text-gray-600 hover:text-gray-900 bg-white/80 hover:bg-gray-50'
         }`}
     >
         {label}

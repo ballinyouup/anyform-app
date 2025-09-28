@@ -134,8 +134,7 @@ Text: "${text}"
                         description: 'An array of three distinct image generation prompts.'
                     }
                 }
-            },
-            tools: config.tools
+            }
         },
     });
     
@@ -145,11 +144,9 @@ Text: "${text}"
 
     const jsonResponse = JSON.parse(response.text);
     
-    // Extract web search results from grounding metadata
-    const metadata = await extractWebSearchMetadata(response);
-    const webSearchResults = metadata.groundingChunks.map((chunk: any) => 
-        `${chunk.web?.title || "Unknown source"}: ${chunk.web?.uri || ""}`
-    );
+    // Since we're not using grounding tools with structured JSON output,
+    // we'll return empty web search results for this function
+    const webSearchResults: string[] = [];
     
     return {
         summary: jsonResponse.summary,

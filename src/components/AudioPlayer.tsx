@@ -20,7 +20,6 @@ export function MediaControlBar({ className, text }: MediaControlBarProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
-  const apiKey = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY
   const voiceId = '21m00Tcm4TlvDq8ikWAM' // Rachel
 
   // Cleanup when component unmounts or text changes
@@ -70,11 +69,6 @@ export function MediaControlBar({ className, text }: MediaControlBarProps) {
   }, [volume])
 
   const handlePlayPause = useCallback(async () => {
-    if (!apiKey) {
-      console.error("ElevenLabs API key is not configured.")
-      return
-    }
-
     // If audio is already playing, pause it
     if (isPlaying) {
       audioRef.current?.pause()
@@ -89,25 +83,22 @@ export function MediaControlBar({ className, text }: MediaControlBarProps) {
       return
     }
 
-    // If no audio is loaded, fetch it from ElevenLabs API
+    // If no audio is loaded, fetch it from our secure API endpoint
     setIsFetching(true)
     try {
-      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+      const response = await fetch('/api/text-to-speech', {
         method: 'POST',
         headers: {
-          'Accept': 'audio/mpeg',
           'Content-Type': 'application/json',
-          'xi-api-key': apiKey,
         },
         body: JSON.stringify({
           text,
-          model_id: 'eleven_multilingual_v2',
-          voice_settings: { stability: 0.5, similarity_boost: 0.75 },
+          voiceId,
         }),
       })
 
       if (!response.ok) {
-        throw new Error('Failed to fetch audio from ElevenLabs.')
+        throw new Error('Failed to fetch audio from text-to-speech API.')
       }
 
       const blob = await response.blob()
@@ -132,7 +123,7 @@ export function MediaControlBar({ className, text }: MediaControlBarProps) {
     } finally {
       setIsFetching(false)
     }
-  }, [text, isPlaying, apiKey, volume])
+  }, [text, isPlaying, voiceId, volume])
 
   const handleProgressChange = (value: number[]) => {
     if (audioRef.current) {

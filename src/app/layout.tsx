@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AnyForm",
-  description: "Upload files to transform them into different formats",
+  title: "TLDR App",
+  description: "Upload files to get quick summaries in audio, image, and text format.",
 };
 
 export default function RootLayout({

@@ -105,7 +105,7 @@ const TrueFocus: React.FC<TrueFocusProps> = ({
                                         ? `blur(0px)`
                                         : `blur(${blurAmount}px)`,
                                 transition: `filter ${animationDuration}s ease`,
-                                color: word.toLowerCase() === 'form' ? '#D8BFD8' : 'white',
+                                color: word.toLowerCase() === 'dr' ? '#D8BFD8' : 'white',
                                 '--border-color': borderColor,
                                 '--glow-color': glowColor
                             } as React.CSSProperties

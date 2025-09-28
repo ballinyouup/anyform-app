@@ -20,6 +20,34 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({ output }) => {
                 </section>
             )}
 
+            {output.webSearchResults && output.webSearchResults.length > 0 && (
+                <section>
+                    <h2 className="text-2xl font-bold text-text-primary mb-4">Sources</h2>
+                    <div className="bg-base-100 p-4 rounded-lg">
+                        <div className="flex flex-wrap gap-2">
+                            {output.webSearchResults.map((result, index) => {
+                                const [title, url] = result.split(': ');
+                                return (
+                                    <a
+                                        key={index}
+                                        href={url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center px-3 py-1 bg-purple-100 hover:bg-purple-200 text-purple-800 text-sm rounded-full transition-colors duration-200"
+                                        title={title || 'Unknown source'}
+                                    >
+                                        <span className="font-medium mr-1">[{index + 1}]</span>
+                                        <span className="truncate max-w-[200px]">
+                                            {title || 'Unknown source'}
+                                        </span>
+                                    </a>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </section>
+            )}
+
             {output.images && output.images.length > 0 && (
                 <section>
                     <h2 className="text-2xl font-bold text-text-primary mb-4">Generated Images</h2>

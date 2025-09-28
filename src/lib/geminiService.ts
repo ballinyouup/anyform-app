@@ -12,11 +12,100 @@ const ai = new GoogleGenAI({apiKey: apiKey});
 const textGenModel = 'gemini-2.5-flash';
 const imageGenModel = 'imagen-4.0-generate-001';
 const visionModel = 'gemini-2.5-flash';
+const groundingTool = {
+    googleSearch: {},
+};
 
+const config = {
+    tools: [groundingTool],
+};
+
+/**
+ * Removes inline citations from response text to provide clean reading experience
+ */
+export async function getCleanText(response: any): Promise<string> {
+    let text = response.text;
+    
+    if (!text) {
+        return text;
+    }
+
+    // Remove markdown-style citations like [1](url), [2](url), etc.
+    text = text.replace(/\[\d+]\([^)]+\)/g, '');
+    
+    // Clean up any extra spaces or commas left behind
+    text = text.replace(/,\s*,/g, ','); // Remove double commas
+    text = text.replace(/\s+/g, ' '); // Normalize whitespace
+    text = text.replace(/,\s*\./g, '.'); // Fix comma before period
+    text = text.trim();
+    
+    return text;
+}
+
+/**
+ * Extracts web search metadata from a Gemini response
+ */
+export const extractWebSearchMetadata = async (response: any) => {
+    const groundingMetadata = response.candidates[0]?.groundingMetadata;
+    
+    if (!groundingMetadata) {
+        return {
+            webSearchQueries: [],
+            groundingChunks: [],
+            groundingSupports: []
+        };
+    }
+
+    return {
+        webSearchQueries: groundingMetadata.webSearchQueries || [],
+        groundingChunks: groundingMetadata.groundingChunks || [],
+        groundingSupports: groundingMetadata.groundingSupports || []
+    };
+};
+
+/**
+ * Performs a web search using Gemini's grounding capability
+ */
+export const performWebSearch = async (query: string): Promise<{
+    response: string;
+    cleanResponse: string;
+    webSearchQueries: string[];
+    sources: Array<{ title: string; uri: string }>;
+}> => {
+    const response = await ai.models.generateContent({
+        model: textGenModel,
+        contents: query,
+        config,
+    });
+
+    if (!response.text) {
+        return {
+            response: "No response generated",
+            cleanResponse: "No response generated",
+            webSearchQueries: [],
+            sources: []
+        };
+    }
+
+    const cleanResponse = await getCleanText(response);
+    const metadata = await extractWebSearchMetadata(response);
+    
+    const sources = metadata.groundingChunks.map((chunk: any) => ({
+        title: chunk.web?.title || "Unknown source",
+        uri: chunk.web?.uri || ""
+    }));
+
+    return {
+        response: response.text,
+        cleanResponse,
+        webSearchQueries: metadata.webSearchQueries,
+        sources
+    };
+};
 /**
  * Generates a summary and image prompts from a given text.
  */
-export const generateContentFromText = async (text: string): Promise<{ summary: string; imagePrompts: string[] }> => {
+export const generateContentFromText = async (text: string): Promise<{ summary: string; imagePrompts: string[], webSearchResults: string[] }> => {
     const prompt = `
 Summarize the following text in a concise, easy-to-understand paragraph.
 After the summary, generate 3 distinct and creative prompts that could be used to create visually compelling images that represent the key themes of the content.
@@ -45,15 +134,28 @@ Text: "${text}"
                         description: 'An array of three distinct image generation prompts.'
                     }
                 }
-            }
-        }
+            },
+            tools: config.tools
+        },
     });
+    
     if (!response.text) {
-        return { summary: "no response", imagePrompts: [] };
+        return { summary: "no response", imagePrompts: [], webSearchResults: [] };
     }
 
     const jsonResponse = JSON.parse(response.text);
-    return jsonResponse;
+    
+    // Extract web search results from grounding metadata
+    const metadata = await extractWebSearchMetadata(response);
+    const webSearchResults = metadata.groundingChunks.map((chunk: any) => 
+        `${chunk.web?.title || "Unknown source"}: ${chunk.web?.uri || ""}`
+    );
+    
+    return {
+        summary: jsonResponse.summary,
+        imagePrompts: jsonResponse.imagePrompts,
+        webSearchResults
+    };
 };
 
 /**
@@ -102,8 +204,7 @@ export const generateContentFromAudio = async (audio: { mimeType: string; data: 
     if (!response.text) {
         return { summary: "no response", imagePrompts: [] };
     }
-    const jsonResponse = JSON.parse(response.text);
-    return jsonResponse;
+    return JSON.parse(response.text);
 };
 
 /**

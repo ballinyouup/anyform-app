@@ -50,9 +50,9 @@ const App: React.FC = () => {
                     setOutput({ summary });
                 } else if (inputFile.type === 'application/pdf') {
                     const text = await extractTextFromPdf(inputFile);
-                    const { summary, imagePrompts } = await geminiService.generateContentFromText(text);
+                    const { summary, imagePrompts, webSearchResults } = await geminiService.generateContentFromText(text);
                     const images = await geminiService.generateImages(imagePrompts);
-                    setOutput({ summary, images });
+                    setOutput({ summary, images, webSearchResults });
                 } else if (inputFile.type.startsWith('audio/')) {
                     const base64Audio = await fileToBase64(inputFile);
                     const { summary, imagePrompts } = await geminiService.generateContentFromAudio({
@@ -65,9 +65,16 @@ const App: React.FC = () => {
                     throw new Error('Unsupported file type. Please use an image, PDF, or audio file.');
                 }
             } else if (inputType === 'text' && inputText.trim()) {
-                const { summary, imagePrompts } = await geminiService.generateContentFromText(inputText);
+                const { summary, imagePrompts, webSearchResults } = await geminiService.generateContentFromText(inputText);
                 const images = await geminiService.generateImages(imagePrompts);
-                setOutput({ summary, images });
+                setOutput({ summary, images, webSearchResults });
+            } else if (inputType === 'websearch' && inputText.trim()) {
+                const { response, cleanResponse, webSearchQueries, sources } = await geminiService.performWebSearch(inputText);
+                const webSearchResults = sources.map(source => `${source.title}: ${source.uri}`);
+                setOutput({ 
+                    summary: cleanResponse, 
+                    webSearchResults 
+                });
             } else {
                 throw new Error('Please provide a file or paste some text to generate content.');
             }
@@ -87,13 +94,10 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="fixed inset-0 overflow-hidden">
-            {/* Dark gradient background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-slate-900 to-black"></div>
-
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black">
             {/* Animated overlay */}
             <div
-                className="absolute inset-0 opacity-50"
+                className="fixed inset-0 opacity-50 pointer-events-none"
                 style={{
                     background: 'linear-gradient(135deg, rgba(168,85,247,0.4), rgba(251,146,60,0.4))',
                     backgroundSize: '300% 300%',

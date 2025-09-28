@@ -15,13 +15,6 @@ const PauseIcon = () => (
     </svg>
 );
 
-const StopIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-        <path fillRule="evenodd" d="M4.5 7.5a3 3 0 013-3h9a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9z" clipRule="evenodd" />
-    </svg>
-);
-
-
 // --- Component Interface ---
 interface AudioPlayerProps {
     text: string;
@@ -108,14 +101,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ text }) => {
         }
     }, [text, isPlaying, apiKey]);
 
-    const handleStop = useCallback(() => {
-        if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current.currentTime = 0;
-            setIsPlaying(false);
-        }
-    }, []);
-
     const getStatusText = () => {
         if (isFetching) return "Generating...";
         if (isPlaying) return "Playing...";
@@ -132,14 +117,14 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ text }) => {
             >
                 {isPlaying ? <PauseIcon /> : <PlayIcon />}
             </button>
-            {audioRef.current && (
-                <button
-                    onClick={handleStop}
-                    className="p-2 rounded-full transition-colors cursor-pointer"
-                >
-                    <StopIcon />
-                </button>
-            )}
+            {/*{audioRef.current && (*/}
+            {/*    <button*/}
+            {/*        onClick={handleStop}*/}
+            {/*        className="p-2 rounded-full transition-colors cursor-pointer"*/}
+            {/*    >*/}
+            {/*        <StopIcon />*/}
+            {/*    </button>*/}
+            {/*)}*/}
             <span className="text-sm text-text-secondary">{getStatusText()}</span>
         </div>
     );

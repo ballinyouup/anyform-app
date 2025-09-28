@@ -170,7 +170,7 @@ const App: React.FC = () => {
                     </p>
                 </header>
 
-                <main className="bg-background rounded-xl shadow-2xl p-6 sm:p-8 relative z-20">
+                <main className="bg-background rounded-xl shadow-2xl p-6 sm:p-8 relative z-20 overflow-hidden-x">
                     {!output && !isLoading && (
                         <DropZone
                             inputType={inputType}
